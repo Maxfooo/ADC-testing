@@ -7,7 +7,7 @@ Created on Oct 11, 2016
 from FPGA_Communication import initFPGA
 from MessageTexts import *
 from Utils import MBox, FDialog, Conversions
-from ep_address import *
+from ep_addresses import *
 
 class Chip_1_Testing():
     
