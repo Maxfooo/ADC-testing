@@ -57,7 +57,7 @@ from MessageTexts import *
 from Utils import MBox, FDialog, Conversions
 import sys
 import math
-from ep_address import *
+from ep_addresses import *
 
 
 class FPGA_Communication(ok.okCFrontPanel, ok.okCPLL22393):
