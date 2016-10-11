@@ -6,14 +6,21 @@ Created on Sep 22, 2016
 
 from PyQt4 import QtGui, QtCore
 import sys
+from FPGA_Communication import initFPGA
+from MessageTexts import *
+from Utils import MBox, FDialog, Conversions
+from ep_addresses import *
 
 class FPGA_Comm_UI(QtGui.QWidget):
     def __init__(self):
         super(FPGA_Comm_UI, self).__init__()
         
         
-        self.tabFrame()
+        
+        self.connectionStatus = "Not Connected"
+        #self.tabFrame()
         #self.genericFrame()
+        self.testFrame()
         
     def genericFrame(self):
         
@@ -57,6 +64,37 @@ class FPGA_Comm_UI(QtGui.QWidget):
         
         self.setGeometry(300, 300, 250, 150)
         self.show()
+        
+    
+    def testFrame(self):
+        
+        mainTestFrame = QtGui.QVBoxLayout()
+        mainTestFrame.addWidget(self.connectToFPGAFrame())
+        self.setLayout(mainTestFrame)
+        self.show()
+    
+    def connectToFPGAFrame(self):
+        
+        frame = QtGui.QWidget()
+        connectButton = QtGui.QPushButton("Connect to FPGA")
+        connectButton.clicked.connect(self._connectToFPGA)
+        self.statusLabel = QtGui.QLabel(self.connectionStatus)
+        frameLayout = QtGui.QVBoxLayout()
+        frameLayout.addWidget(connectButton)
+        frameLayout.addWidget(self.statusLabel)
+        frame.setLayout(frameLayout)
+        
+        return frame
+    
+    def _connectToFPGA(self):
+        
+        self.xem = initFPGA(exitOnFailure=False)
+        if self.xem == None:
+            self.connectionStatus = "Not Connected"
+        else:
+            self.connectionStatus = "Connected"
+            
+        self.statusLabel.setText(self.connectionStatus)
         
         
 
