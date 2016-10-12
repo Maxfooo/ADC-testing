@@ -3,7 +3,7 @@ Sample Test Results Source Code
 Max Ruiz
 
 NOTES:
-+Requires the file "ADC_results.txt"
++Requires the file "test_ADC_results.txt"
 +Requires matplotlib
 
 EXPLANATION OF PROCESS
@@ -25,7 +25,7 @@ be filtered in software so there is no reason to not do a bulk request.
 """
 
 
-dataFileName = "ADC_results.txt"
+dataFileName = "test_ADC_results.txt"
 c256 = 2**8
 c255 = c256-1
 sampleCodes = []
