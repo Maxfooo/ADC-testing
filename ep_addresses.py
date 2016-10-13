@@ -30,7 +30,6 @@ RESET_ADDR = 0x00 # bit [0]
 SET = 0x01 # [3:0]
 
 # Read Wire
-SEL_96 = 0x21 # [0]
 
 # Read Pipe
 
@@ -39,8 +38,7 @@ SEL_96 = 0x21 # [0]
 ----------- Phase II: Individual Pixel Testing -----------
 """
 # Write Wire
-SHIFT_CLK_EN = 0x02 # [0]
-PIX_OUT_CTRL = 0x02 # [1]
+PIX_OUT_CTRL = 0x02 # [0]
 
 # Read Wire
 
@@ -59,7 +57,8 @@ PIX_OUT_CTRL = 0x02 # [1]
 
 # Read Pipe
 
-
+# Trigger To FPGA
+NEXT_ROW = 0x52 # [0]
 
 """
 ----------- Phase IV: PGA + ADC setup -----------
