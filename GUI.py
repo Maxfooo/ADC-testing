@@ -18,6 +18,7 @@ class FPGA_Comm_UI(QtGui.QWidget):
         
         
         self.connectionStatus = "Not Connected"
+        self.currentExposureTime = '0'
         #self.tabFrame()
         #self.genericFrame()
         self.testFrame()
@@ -70,6 +71,7 @@ class FPGA_Comm_UI(QtGui.QWidget):
         
         mainTestFrame = QtGui.QVBoxLayout()
         mainTestFrame.addWidget(self.connectToFPGAFrame())
+        mainTestFrame.addWidget(self.exposureTimeFrame())
         self.setLayout(mainTestFrame)
         self.show()
     
@@ -93,9 +95,35 @@ class FPGA_Comm_UI(QtGui.QWidget):
             self.connectionStatus = "Not Connected"
         else:
             self.connectionStatus = "Connected"
-            
+        
         self.statusLabel.setText(self.connectionStatus)
         
+        
+    def exposureTimeFrame(self):
+        frame = QtGui.QWidget()
+        
+        expTimeLabel = QtGui.QLabel('Current Exposure Time')
+        self.currExpTimeLabel = QtGui.QLabel(self.currentExposureTime)
+        self.expTimeLineEdit = QtGui.QLineEdit()
+        self.expTimeLineEdit.returnPressed.connect(self._updateExposureTime)
+        expTimeButton = QtGui.QPushButton('Update')
+        expTimeButton.clicked.connect(self._updateExposureTime)
+        frameLayout = QtGui.QVBoxLayout()
+        frameLayout.addWidget(expTimeLabel)
+        frameLayout.addWidget(self.currExpTimeLabel)
+        frameLayout.addWidget(self.expTimeLineEdit)
+        frameLayout.addWidget(expTimeButton)
+        frame.setLayout(frameLayout)
+        
+        return frame
+        
+    def _updateExposureTime(self):
+        temp = self.expTimeLineEdit.text()
+        # Do some checking here to make sure temp is an
+        # appropriate value to set the exposure time to
+        self.currentExposureTime = temp
+        self.currExpTimeLabel.setText(self.currentExposureTime)
+        pass
         
 
 def main():
