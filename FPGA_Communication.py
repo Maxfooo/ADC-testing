@@ -176,7 +176,10 @@ class FPGA_Communication(ok.okCFrontPanel, ok.okCPLL22393):
             self.SetWireInValue(epAddr, val, mask)
         self.UpdateWireIns()
 
-    def manualReset(self, epAddr=RESET_ADDR, mask=0x01):
+    def writeTrigger(self, epAddr=0x52, val=0x00, mask=0x01):
+        self.ActivateTriggerIn(epAddr, val, mask)
+        
+    def manualReset(self, epAddr=RESET_ADDR, mask=RESET_ADDR_MASK):
         """
         Method: manualReset
         Params: int epAddr=RESET_ADDR: address of wire with the reset bit in it
@@ -279,7 +282,7 @@ class FPGA_Communication(ok.okCFrontPanel, ok.okCPLL22393):
 
 
 
-def initFPGA(fileName=None, autoConfig=True):
+def initFPGA(fileName=None, autoConfig=True, exitOnFailure=True):
     """
     Function: initFPGA
     Params: str fileName=None: file name used for configuring the FGPA if not already done
@@ -289,12 +292,14 @@ def initFPGA(fileName=None, autoConfig=True):
     Description: create instance of FPGA_Communication() and check
         if it was created successfully or not.
     """
-    fileName = "adc_testing_top.bit"
     xem = FPGA_Communication()
     MB = MBox()
     if xem == None:
         MB.showerror('No Connect', connect_to_device_error_text)
-        sys.exit()
+        if exitOnFailure:
+            sys.exit()
+        else:
+            return None
     else:
         if autoConfig:
             xem.configureFPGA(fileName)
