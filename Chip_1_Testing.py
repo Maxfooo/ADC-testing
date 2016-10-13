@@ -37,27 +37,27 @@ class Chip_1_Testing():
             return 'e'
         elif ans == 'r':
             if self.testingClass == False:
-                self.xem.writeWire(SET, val=0xF, mask=0xF)
+                self.xem.writeWire(SET, val=0xF, mask=SET_MASK)
             else:
                 print(ans)
         elif ans == '0':
             if self.testingClass == False:
-                self.xem.writeWire(SET, val=0xE, mask=0xF)
+                self.xem.writeWire(SET, val=0xE, mask=SET_MASK)
             else:
                 print(ans)
         elif ans == '1':
             if self.testingClass == False:
-                self.xem.writeWire(SET, val=0xD, mask=0xF)
+                self.xem.writeWire(SET, val=0xD, mask=SET_MASK)
             else:
                 print(ans)
         elif ans == '2':
             if self.testingClass == False:
-                self.xem.writeWire(SET, val=0xB, mask=0xF)
+                self.xem.writeWire(SET, val=0xB, mask=SET_MASK)
             else:
                 print(ans)
         elif ans == '3':
             if self.testingClass == False:
-                self.xem.writeWire(SET, val=0x7, mask=0xF)
+                self.xem.writeWire(SET, val=0x7, mask=SET_MASK)
             else:
                 print(ans)
         else:
@@ -84,7 +84,7 @@ class Chip_1_Testing():
         visually examine the output first.
         """
         if self.testingClass == False:
-            self.xem.writeWire(SET, val=0xF, mask=0xF)
+            self.xem.writeWire(SET, val=0xF, mask=SET_MASK)
         ans = self._cmndShiftReg('Phase I - Shift Register Test')
         while (ans != 'e'):
             ans = self._cmndShiftReg('Phase I - Shift Register Test')
@@ -100,16 +100,10 @@ class Chip_1_Testing():
         2) pix_out_ctrl=0
         3) SET = 1110, observe output
         4) Repeat
-        
-        DIGITAL (Through ADC)
-        1) initiailly Set SET = 1111
-        2) pix_out_ctrl=1
-        3) SET = 1110, observe output
-        4) Repeat
-        --------------------
         """
         if self.testingClass == False:
-            self.xem.writeWire(SET, val=0xF, mask=0xF)
+            self.xem.writeWire(SET, val=0xF, mask=SET_MASK)
+            self.xem.writeWire(PIX_OUT_CTRL, 0x0, PIX_OUT_CTRL_MASK)
         ans = self._cmndShiftReg('Phase II - Individual Pixel Test')
         while (ans != 'e'):
             ans = self._cmndShiftReg('Phase II - Individual Pixel Test')
@@ -124,7 +118,7 @@ class Chip_1_Testing():
             on FPGA shift register until all pixel rows are tested        
         """
         if self.testingClass == False:
-            self.xem.writeWire(SET, val=0xF, mask=0xF)
+            self.xem.writeWire(SET, val=0xF, mask=SET_MASK)
         ans0 = self._cmndShiftReg('Phase III - Pixel Array Test')
         ans1 = None
         triggerCount = 0
@@ -140,6 +134,7 @@ class Chip_1_Testing():
                 break
             elif ans1 == '0':
                 # assert trigger here
+                self.xem.writeTrigger(NEXT_ROW, NEXT_ROW_MASK)
                 triggerCount += 1
                 print('\nTrigger Count: {}\n'.format(triggerCount))
             else:
@@ -149,8 +144,46 @@ class Chip_1_Testing():
         
         
     def phaseVI(self):
-        pass
+        """
+        Procedure Proposal
+        --------------------
+        DIGITAL (Through ADC)
+        1) initiailly Set SET = 1111
+        2) pix_out_ctrl=1
+        3) SET = 1110, observe output
+        4) Repeat
+        
+        **Question
+        Do we need to set SET to a different value in this test?
+        
+        """
+        if self.testingClass == False:
+            self.xem.writeWire(SET, val=0xF, mask=SET_MASK)
+            self.xem.writeWire(PIX_OUT_CTRL, 0x1, PIX_OUT_CTRL_MASK)
     
+        ans0 = self._cmndShiftReg('Phase IV - PGA+ADC Test')
+        ans1 = None
+        triggerCount = 0
+        while (ans0 != 'e' and ans1 != 'e'):
+            print('State      |     Command')
+            print('------------------------')
+            print('Shift Row  |     \'0\'')
+            print('Exit       |     \'e\'')
+            print('\nSelect a State: ')
+            ans1 = input()
+            if ans1 == 'e':
+                print('\nExiting')
+                break
+            elif ans1 == '0':
+                # assert trigger here
+                self.xem.writeTrigger(NEXT_ROW, NEXT_ROW_MASK)
+                triggerCount += 1
+                print('\nTrigger Count: {}\n'.format(triggerCount))
+            else:
+                print('No Command: {}'.format(ans1))
+                continue
+            
+            
     def phaseV(self):
         pass
     
