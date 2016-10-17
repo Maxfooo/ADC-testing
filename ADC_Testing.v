@@ -254,11 +254,11 @@ wire [15:0] ep40trigger;
 wire next_row;
 assign next_row = ep40trigger[0];
 wire shift_clk; // may need to change
-okTriggerIn ep40trigger (
+okTriggerIn trigger40 (
 	.ok1(ok),
 	.ep_addr(8'h40),
 	.ep_clk(shift_clk), // may need to change
-	.ep_trigger(ep40trigger),
+	.ep_trigger(ep40trigger)
 );
 
 
