@@ -119,7 +119,7 @@ assign i2c_scl = 1'bz;
 assign hi_muxsel = 1'b0;
 
 // HDL bus
-parameter EP_OUTPUTS = 3; // define number of connections to OK OR block
+parameter EP_OUTPUTS = 7; // define number of connections to OK OR block
 wire [17*EP_OUTPUTS-1:0] ok2x;
 
 // Host to HDL connection module
@@ -133,7 +133,10 @@ okHost hostIF (
 	.ok2(ok2)
 );
 
-wire [15:0] ep00wire; // wire in
+//--------------------------------------------------
+//-------------------- WIRE IN ---------------------
+//--------------------------------------------------
+wire [15:0] ep00wire; // reset
 assign reset = ep00wire[0];
 okWireIn wire00 (
 	.ok1(ok1),
@@ -141,11 +144,50 @@ okWireIn wire00 (
 	.ep_dataout(ep00wire)
 );
 
+
+wire [15:0] ep01wire; // R_sel
+wire [3:0] R_sel;
+assign R_sel = ep01wire[3:0];
+okWireIn wire01 (
+	.ok1(ok1),
+	.ep_addr(8'h01),
+	.ep_dataout(ep01wire)
+);
+
+wire [15:0] ep02wire; // shift_clk_ctrl[0], pix_out_ctrl[1]
+wire shift_clk_ctrl;
+assign shift_clk_ctrl = ep02wire[0];
+wire pix_out_ctrl;
+assign pix_out_ctrl = ep02wire[1];
+okWireIn wire02 (
+	.ok1(ok1),
+	.ep_addr(8'h02),
+	.ep_dataout(ep02wire)
+);
+
+//--------------------------------------------------
+//-------------------- WIRE OUT --------------------
+//--------------------------------------------------
+//==== Testing/Debugging ====
+wire [15:0] ep20wire; // wire out, fifo_empty
+assign ep20wire[0] = fifo_empty;
+okWireOut wire20 (
+	.ok1(ok1),
+	.ok2(ok2x[0*17 +: 17]),
+	.ep_addr(8'h20),
+	.ep_datain(ep20wire)
+);
+
+//--------------------------------------------------
+//-------------------- PIPE OUT --------------------
+//--------------------------------------------------
+
+//==== Testing/Debugging ====
 wire [15:0] epA0pipe; // pipe out; adc data from fifo
 wire epA0read; // pipe out read signal from host
 okPipeOut pipeA0 (
 	.ok1(ok1),
-	.ok2(ok2x[0*17 +: 17]),
+	.ok2(ok2x[1*17 +: 17]),
 	.ep_addr(8'hA0),
 	.ep_datain(epA0pipe), // data from FIFO
 	.ep_read(epA0read) // enable rd_en at FIFO
@@ -156,22 +198,68 @@ assign epA1pipe = wr_data_count;
 wire epA1read;
 okPipeOut pipeA1 (
 	.ok1(ok1),
-	.ok2(ok2x[1*17 +: 17]),
+	.ok2(ok2x[2*17 +: 17]),
 	.ep_addr(8'hA1),
 	.ep_datain(epA1pipe), // data from FIFO
 	.ep_read(epA1read) // enable rd_en at FIFO
 );
 
-
-wire [15:0] ep20wire; // wire out
-assign ep20wire[0] = fifo_empty;
-okWireOut wire20 (
+//==== Chip #1 ====
+wire [15:0] epA4pipe; // pipe out; Chip#1 ADC_0
+wire epA4read;
+okPipeOut pipeA4 (
 	.ok1(ok1),
-	.ok2(ok2x[2*17 +: 17]),
-	.ep_addr(8'h20),
-	.ep_datain(ep20wire)
+	.ok2(ok2x[3*17 +: 17]),
+	.ep_addr(8'hA4),
+	.ep_datain(epA4pipe), // data from FIFO
+	.ep_read(epA4read) // enable rd_en at FIFO
 );
 
+wire [15:0] epA5pipe; // pipe out; Chip#1 ADC_1
+wire epA5read;
+okPipeOut pipeA5 (
+	.ok1(ok1),
+	.ok2(ok2x[4*17 +: 17]),
+	.ep_addr(8'hA5),
+	.ep_datain(epA5pipe), // data from FIFO
+	.ep_read(epA5read) // enable rd_en at FIFO
+);
+
+wire [15:0] epA6pipe; // pipe out; Chip#1 ADC_2
+wire epA6read;
+okPipeOut pipeA6 (
+	.ok1(ok1),
+	.ok2(ok2x[5*17 +: 17]),
+	.ep_addr(8'hA6),
+	.ep_datain(epA6pipe), // data from FIFO
+	.ep_read(epA6read) // enable rd_en at FIFO
+);
+
+wire [15:0] epA7pipe; // pipe out; Chip#1 ADC_3
+wire epA7read;
+okPipeOut pipeA7 (
+	.ok1(ok1),
+	.ok2(ok2x[6*17 +: 17]),
+	.ep_addr(8'hA7),
+	.ep_datain(epA7pipe), // data from FIFO
+	.ep_read(epA7read) // enable rd_en at FIFO
+);
+
+
+//--------------------------------------------------
+//------------------ Trigger In --------------------
+//--------------------------------------------------
+
+wire [15:0] ep40trigger;
+wire next_row;
+assign next_row = ep40trigger[0];
+wire shift_clk; // may need to change
+okTriggerIn ep40trigger (
+	.ok1(ok),
+	.ep_addr(8'h40),
+	.ep_clk(shift_clk), // may need to change
+	.ep_trigger(ep40trigger),
+);
 
 
 okWireOR #(.N(EP_OUTPUTS)) wireOR(
